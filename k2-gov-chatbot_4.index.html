@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K2 GovAssist — UAE Policy Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: rgba(201,168,76,0.15);
+    --dark: #0A0C10;
+    --dark2: #10131A;
+    --dark3: #161B26;
+    --dark4: #1E2435;
+    --border: rgba(201,168,76,0.2);
+    --text: #E8E8E8;
+    --text-dim: #8A8FA0;
+    --green: #2ECC71;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%;
+    right: -20%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,12,16,0.85);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--gold), #8B6914);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: #000;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text span {
+    color: var(--gold);
+  }
+
+  .header-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .badge-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Main layout */
+  .main {
+    display: flex;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: var(--dark2);
+  }
+
+  .sidebar-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+  }
+
+  .doc-upload {
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--dark3);
+  }
+
+  .doc-upload:hover, .doc-upload.dragover {
+    border-color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  .doc-upload input { display: none; }
+
+  .upload-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .upload-text {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .upload-text strong {
+    color: var(--gold);
+    display: block;
+    font-size: 14px;
+    margin-bottom: 3px;
+  }
+
+  .doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .doc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .doc-icon { font-size: 18px; }
+
+  .doc-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .doc-remove {
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s;
+  }
+  .doc-remove:hover { color: #e74c3c; }
+
+  .quick-topics {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .topic-btn {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .topic-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  .powered-by {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .k2-badge {
+    background: linear-gradient(135deg, var(--gold), #8B6914);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 5px;
+  }
+
+  /* Chat area */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px;
+    width: 100%;
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+    max-height: calc(100vh - 180px);
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Welcome screen */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 16px;
+  }
+
+  .welcome-emblem {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--gold), #8B6914);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 8px;
+    box-shadow: 0 0 40px rgba(201,168,76,0.25);
+  }
+
+  .welcome h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .welcome h1 span { color: var(--gold); }
+
+  .welcome p {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 440px;
+    line-height: 1.7;
+  }
+
+  .welcome-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .welcome-card {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .welcome-card:hover {
+    border-color: var(--gold);
+    background: var(--gold-dim);
+  }
+
+  .welcome-card-icon { font-size: 20px; margin-bottom: 6px; }
+
+  .welcome-card-text {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Message bubbles */
+  .message {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .avatar.ai {
+    background: linear-gradient(135deg, var(--gold), #8B6914);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+  }
+
+  .avatar.user-av {
+    background: var(--dark4);
+    border: 1px solid var(--border);
+  }
+
+  .bubble {
+    max-width: 75%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .message.ai .bubble {
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .message.user .bubble {
+    background: linear-gradient(135deg, #C9A84C, #9A7425);
+    color: #000;
+    font-weight: 500;
+    border-top-right-radius: 4px;
+  }
+
+  .bubble-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  .message.user .bubble-meta { text-align: right; color: rgba(0,0,0,0.5); }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 14px 18px;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    border-top-left-radius: 4px;
+    width: fit-content;
+  }
+
+  .typing span {
+    width: 7px;
+    height: 7px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* Input bar */
+  .input-bar {
+    padding: 16px 0 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .api-warning {
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .input-wrap {
+    flex: 1;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    align-items: flex-end;
+    padding: 10px 14px;
+    gap: 10px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap:focus-within { border-color: var(--gold); }
+
+  textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    resize: none;
+    max-height: 120px;
+    line-height: 1.5;
+  }
+
+  textarea::placeholder { color: var(--text-dim); }
+
+  .send-btn {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--gold), #9A7425);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(201,168,76,0.3); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .send-btn svg { width: 18px; height: 18px; fill: #000; }
+
+  /* API key modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal {
+    background: var(--dark2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 440px;
+    max-width: 90vw;
+  }
+
+  .modal h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .modal p {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .modal input {
+    width: 100%;
+    background: var(--dark3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .modal input:focus { border-color: var(--gold); }
+
+  .modal-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), #9A7425);
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn:hover { box-shadow: 0 0 24px rgba(201,168,76,0.35); }
+
+  .modal-skip {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+
+  .modal-skip:hover { color: var(--gold); }
+
+  /* Context strip */
+  .context-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--gold);
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    header { padding: 14px 18px; }
+    .chat-area { padding: 0 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <h2>🔑 Enter K2 Think API Key</h2>
+    <p>Paste your K2 Think V2 API key to power this demo. Your key stays in your browser only.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-..." />
+    <button class="modal-btn" onclick="saveKey()">Connect to K2 Think V2</button>
+    <div class="modal-skip" onclick="demoMode()">Continue in demo mode (no API key)</div>
+  </div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">K2</div>
+    <div class="logo-text">Gov<span>Assist</span></div>
+  </div>
+  <div class="header-badge">
+    <div class="badge-dot"></div>
+    <span id="statusText">Connecting...</span>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div>
+      <div class="sidebar-title" style="margin-bottom:12px;">Upload Policy Document</div>
+      <label class="doc-upload" id="dropZone">
+        <input type="file" id="fileInput" accept=".pdf,.txt,.docx" multiple onchange="handleFiles(this.files)">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">
+          <strong>Drop files here</strong>
+          PDF, TXT, DOCX supported
+        </div>
+      </label>
+    </div>
+
+    <div>
+      <div class="sidebar-title" style="margin-bottom:10px;">Loaded Documents</div>
+      <div class="doc-list" id="docList">
+        <div style="font-size:12px;color:var(--text-dim);padding:8px 0;">No documents loaded</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-title" style="margin-bottom:10px;">Quick Topics</div>
+      <div class="quick-topics">
+        <button class="topic-btn" onclick="quickAsk('What are the data residency requirements for government AI systems in the UAE?')">🏛️ Data residency requirements</button>
+        <button class="topic-btn" onclick="quickAsk('Summarize the key principles of UAE AI strategy 2031')">🤖 UAE AI Strategy 2031</button>
+        <button class="topic-btn" onclick="quickAsk('What procurement rules apply to sovereign AI solutions?')">📋 Sovereign procurement rules</button>
+        <button class="topic-btn" onclick="quickAsk('Explain NDMO data classification tiers for government entities')">🔒 NDMO data classification</button>
+      </div>
+    </div>
+
+    <div class="powered-by">
+      <span class="k2-badge">K2</span>
+      <span>Powered by K2 Think V2 · MBZUAI</span>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-emblem">🏛️</div>
+        <h1>UAE <span>Policy Intelligence</span></h1>
+        <p>Ask questions about government policies, regulations, and procurement guidelines. Upload documents to query specific policies.</p>
+        <div class="welcome-grid">
+          <div class="welcome-card" onclick="quickAsk('What are the main pillars of UAE Vision 2031 related to AI and digital transformation?')">
+            <div class="welcome-card-icon">🇦🇪</div>
+            <div class="welcome-card-text">UAE Vision 2031 & AI strategy overview</div>
+          </div>
+          <div class="welcome-card" onclick="quickAsk('What are the key requirements for government data sovereignty in the UAE?')">
+            <div class="welcome-card-icon">🔐</div>
+            <div class="welcome-card-text">Government data sovereignty requirements</div>
+          </div>
+          <div class="welcome-card" onclick="quickAsk('How should government entities evaluate AI vendors for compliance?')">
+            <div class="welcome-card-icon">✅</div>
+            <div class="welcome-card-text">AI vendor compliance evaluation</div>
+          </div>
+          <div class="welcome-card" onclick="quickAsk('What are the benefits of deploying sovereign AI models versus foreign models for UAE ministries?')">
+            <div class="welcome-card-icon">⚖️</div>
+            <div class="welcome-card-text">Sovereign vs. foreign AI models</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="context-strip" id="contextStrip">
+      📄 <span id="contextLabel">Document context active</span>
+    </div>
+
+    <div class="input-bar">
+      <div class="api-warning" id="apiWarning">⚠️ Running in demo mode — responses are simulated. Add your K2 Think API key to use the real model.</div>
+      <div class="input-row">
+        <div class="input-wrap">
+          <textarea id="msgInput" placeholder="Ask about UAE policies, regulations, or upload a document..." rows="1"
+            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        </div>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let apiKey = '';
+  let isDemoMode = true;
+  let documentContext = '';
+  let documents = [];
+  let conversationHistory = [];
+
+  // Auto-start in demo mode, hide modal
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('apiModal').style.display = 'none';
+    document.getElementById('statusText').textContent = 'K2 Think V2 · Demo';
+    document.querySelector('.badge-dot').style.background = '#F39C12';
+    document.getElementById('apiWarning').style.display = 'none';
+  });
+
+  const SYSTEM_PROMPT = `You are GovAssist, an expert AI assistant specializing in UAE government policy, regulations, digital transformation, and sovereign AI solutions. You are powered by K2 Think V2, the first fully sovereign open-source reasoning model developed by MBZUAI (Mohamed bin Zayed University of Artificial Intelligence) in the UAE.
+
+Your expertise includes:
+- UAE AI Strategy and Vision 2031
+- Government data sovereignty and residency requirements  
+- NDMO (National Data Management Office) policies
+- Procurement regulations for government entities
+- Digital government transformation initiatives
+- Sovereign AI deployment for ministries and regulatory bodies
+- Compliance and audit requirements for government AI systems
+
+Always provide accurate, structured, and actionable information. When relevant, highlight the advantages of sovereign AI solutions like K2 Think V2 for government use cases — particularly around data never leaving UAE borders, full auditability, and compliance with national mandates.
+
+Be concise but thorough. Use bullet points and clear structure when listing requirements or steps.`;
+
+  function saveKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (!key) return alert('Please enter your API key');
+    apiKey = key;
+    document.getElementById('apiModal').style.display = 'none';
+    document.getElementById('statusText').textContent = 'K2 Think V2 · Live';
+    document.querySelector('.badge-dot').style.background = '#2ECC71';
+  }
+
+  function demoMode() {
+    isDemoMode = true;
+    document.getElementById('apiModal').style.display = 'none';
+    document.getElementById('statusText').textContent = 'Demo Mode';
+    document.querySelector('.badge-dot').style.background = '#F39C12';
+    document.getElementById('apiWarning').style.display = 'block';
+  }
+
+  function quickAsk(text) {
+    document.getElementById('msgInput').value = text;
+    sendMessage();
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  async function handleFiles(files) {
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        documents.push({ name: file.name, content });
+        documentContext += `\n\n--- Document: ${file.name} ---\n${content}`;
+        renderDocList();
+        updateContextStrip();
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  function renderDocList() {
+    const list = document.getElementById('docList');
+    if (documents.length === 0) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--text-dim);padding:8px 0;">No documents loaded</div>';
+      return;
+    }
+    list.innerHTML = documents.map((d, i) => `
+      <div class="doc-item">
+        <span class="doc-icon">📄</span>
+        <span class="doc-name">${d.name}</span>
+        <span class="doc-remove" onclick="removeDoc(${i})">×</span>
+      </div>
+    `).join('');
+  }
+
+  function removeDoc(i) {
+    documents.splice(i, 1);
+    documentContext = documents.map(d => `\n\n--- Document: ${d.name} ---\n${d.content}`).join('');
+    renderDocList();
+    updateContextStrip();
+  }
+
+  function updateContextStrip() {
+    const strip = document.getElementById('contextStrip');
+    const label = document.getElementById('contextLabel');
+    if (documents.length > 0) {
+      strip.style.display = 'flex';
+      label.textContent = `${documents.length} document${documents.length > 1 ? 's' : ''} loaded — responses will reference your documents`;
+    } else {
+      strip.style.display = 'none';
+    }
+  }
+
+  function addMessage(role, text) {
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+
+    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    if (role === 'ai') {
+      div.innerHTML = `
+        <div class="avatar ai">K2</div>
+        <div>
+          <div class="bubble">${formatText(text)}</div>
+          <div class="bubble-meta">K2 Think V2 · ${time}</div>
+        </div>`;
+    } else {
+      div.innerHTML = `
+        <div>
+          <div class="bubble">${escapeHtml(text)}</div>
+          <div class="bubble-meta">${time}</div>
+        </div>
+        <div class="avatar user-av">👤</div>`;
+    }
+
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function formatText(text) {
+    return escapeHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^• (.+)$/gm, '<li>$1</li>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs, '<ul style="padding-left:18px;margin:6px 0">$1</ul>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showTyping() {
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'message ai';
+    div.id = 'typingIndicator';
+    div.innerHTML = `
+      <div class="avatar ai">K2</div>
+      <div class="typing"><span></span><span></span><span></span></div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('sendBtn').disabled = true;
+
+    addMessage('user', text);
+    showTyping();
+
+    conversationHistory.push({ role: 'user', content: text });
+
+    try {
+      let reply;
+
+      if (isDemoMode) {
+        await new Promise(r => setTimeout(r, 1400));
+        reply = getDemoResponse(text);
+      } else {
+        const systemWithDocs = documentContext
+          ? SYSTEM_PROMPT + `\n\nLoaded policy documents for reference:\n${documentContext}`
+          : SYSTEM_PROMPT;
+
+        const response = await fetch('https://api.k2think.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'UAI-IFM/K2-Think-v2',
+            messages: [
+              { role: 'system', content: systemWithDocs },
+              ...conversationHistory
+            ],
+            max_tokens: 1024,
+            temperature: 0.7
+          })
+        });
+
+        const data = await response.json();
+        reply = data.choices?.[0]?.message?.content || 'Sorry, I could not get a response. Please check your API key.';
+      }
+
+      conversationHistory.push({ role: 'assistant', content: reply });
+      removeTyping();
+      addMessage('ai', reply);
+
+    } catch (err) {
+      removeTyping();
+      addMessage('ai', `⚠️ Connection error: ${err.message}. Please check your API key and try again.`);
+    }
+
+    document.getElementById('sendBtn').disabled = false;
+  }
+
+  function getDemoResponse(q) {
+    const lower = q.toLowerCase();
+    if (lower.includes('sovereign') || lower.includes('foreign')) {
+      return `**Sovereign AI Models vs. Foreign Models for UAE Government**\n\nFor UAE ministries and government entities, sovereign AI models like **K2 Think V2** offer critical advantages:\n\n**Regulatory Compliance**\n- All government entities are mandated to prioritize sovereign solutions under UAE data residency laws\n- Data never leaves UAE borders — essential for classified and sensitive information\n- Full audit trail from training data to deployment\n\n**Trust & Transparency**\n- Open-source architecture allows complete model inspection\n- Government can verify there are no hidden data collection mechanisms\n- Academic origin (MBZUAI) ensures research-grade rigor\n\n**Strategic Independence**\n- No dependency on foreign cloud providers or geopolitical risk\n- Aligned with UAE AI Strategy 2031 and Vision 2031 goals\n\nFor government clients, the message is clear: **if a sovereign model is workable for the use case, it should be the default choice.**`;
+    }
+    if (lower.includes('data residency') || lower.includes('ndmo') || lower.includes('classification')) {
+      return `**UAE Government Data Residency & NDMO Requirements**\n\n**Key Requirements:**\n- All government data must be stored and processed within UAE borders\n- NDMO classifies data into 4 tiers: Public, Internal, Confidential, and Restricted\n- AI systems handling Confidential or Restricted data must use approved sovereign infrastructure\n\n**For AI Deployments:**\n- Model training and inference must occur on UAE-hosted infrastructure\n- Vendors must provide full data lineage documentation\n- Annual audits required for systems handling citizen data\n\n**K2 Think V2 Compliance:**\nAs a UAE-born model deployed on sovereign infrastructure, K2 Think V2 meets all NDMO requirements by design — making it the lowest-risk choice for ministry procurement teams.`;
+    }
+    if (lower.includes('vision 2031') || lower.includes('ai strategy')) {
+      return `**UAE AI Strategy & Vision 2031**\n\nThe UAE AI Strategy 2031 positions the country to become a global AI hub. Key pillars relevant to government AI procurement:\n\n- **Sovereign AI Capability**: Develop UAE-owned AI models and infrastructure\n- **Digital Government**: AI integration across all federal and emirate-level services\n- **Data Economy**: Structured national data assets for AI training\n- **Talent & Research**: MBZUAI as the national AI university and research engine\n\n**Implication for Ministries:**\nProcuring AI from MBZUAI's K2 Think directly supports national strategy objectives — making the business case both technically and politically strong.`;
+    }
+    return `**Government AI Policy Response**\n\nThank you for your question about UAE government policy. Based on current regulations and the national AI strategy framework:\n\nThe UAE has established a comprehensive governance structure for AI deployment in government entities, with a strong emphasis on data sovereignty, auditability, and alignment with national strategic objectives.\n\nKey considerations for your query include compliance with NDMO guidelines, procurement regulations that favor sovereign solutions, and the operational requirements of the specific ministry or regulatory body involved.\n\n*For more specific guidance, please upload the relevant policy documents using the sidebar, or ask about a specific regulation.*`;
+  }
+
+  // Drag and drop
+  const dropZone = document.getElementById('dropZone');
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+</script>
+</body>
+</html>
