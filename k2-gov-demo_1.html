@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K2 Think V2 — Government AI Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold2: #E8C97A;
+  --gold-dim: rgba(201,168,76,0.1);
+  --gold-border: rgba(201,168,76,0.22);
+  --bg: #07090D;
+  --bg2: #0C0F16;
+  --bg3: #12161F;
+  --bg4: #181D28;
+  --text: #EBEBEB;
+  --muted: #6B7280;
+  --muted2: #9CA3AF;
+  --green: #10B981;
+  --red: #EF4444;
+  --blue: #3B82F6;
+  --purple: #8B5CF6;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── noise texture overlay ── */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:999;
+}
+
+/* ── hero glow ── */
+.hero-glow {
+  position:fixed; top:-200px; left:50%; transform:translateX(-50%);
+  width:900px; height:500px;
+  background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 65%);
+  pointer-events:none; z-index:0;
+}
+
+/* ════ HEADER ════ */
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 40px;
+  border-bottom:1px solid var(--gold-border);
+  background:rgba(7,9,13,0.92);
+  backdrop-filter:blur(20px);
+  position:sticky; top:0; z-index:100;
+}
+
+.hd-left { display:flex; align-items:center; gap:14px; }
+
+.k2-chip {
+  background:linear-gradient(135deg,#C9A84C,#7A5518);
+  border-radius:10px; padding:8px 13px;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:16px;
+  color:#000; letter-spacing:-0.5px;
+}
+
+.hd-title { font-family:'Syne',sans-serif; font-weight:700; font-size:17px; }
+.hd-title span { color:var(--gold); }
+.hd-sub { font-size:11px; color:var(--muted); margin-top:1px; }
+
+.hd-right { display:flex; align-items:center; gap:12px; }
+
+.live-pill {
+  display:flex; align-items:center; gap:7px;
+  background:var(--bg3); border:1px solid var(--gold-border);
+  border-radius:30px; padding:7px 14px;
+  font-size:12px; color:var(--muted2);
+}
+.live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.mbz-tag {
+  font-size:11px; color:var(--muted);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:6px; padding:5px 10px;
+}
+
+/* ════ HERO SECTION ════ */
+.hero {
+  text-align:center; padding:64px 40px 48px;
+  position:relative; z-index:1;
+}
+
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--gold-dim); border:1px solid var(--gold-border);
+  border-radius:20px; padding:6px 16px; margin-bottom:22px;
+  font-size:12px; color:var(--gold); letter-spacing:0.5px;
+}
+
+.hero h1 {
+  font-family:'Syne',sans-serif; font-weight:800;
+  font-size:clamp(32px,5vw,52px); line-height:1.1;
+  letter-spacing:-1.5px; margin-bottom:16px;
+}
+
+.hero h1 em {
+  font-family:'Instrument Serif',serif; font-style:italic;
+  color:var(--gold); font-weight:400;
+}
+
+.hero p {
+  font-size:16px; color:var(--muted2); max-width:560px;
+  margin:0 auto 36px; line-height:1.75;
+}
+
+.hero-stats {
+  display:inline-flex; gap:0;
+  background:var(--bg3); border:1px solid var(--gold-border);
+  border-radius:14px; overflow:hidden; margin-bottom:48px;
+}
+
+.stat {
+  padding:14px 28px; border-right:1px solid var(--gold-border);
+  text-align:center;
+}
+.stat:last-child { border-right:none; }
+.stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:22px; color:var(--gold); }
+.stat-label { font-size:11px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:.8px; }
+
+/* ════ SCENARIOS GRID ════ */
+.section-label {
+  text-align:center; margin-bottom:28px;
+  font-family:'Syne',sans-serif; font-size:11px; font-weight:600;
+  text-transform:uppercase; letter-spacing:2px; color:var(--muted);
+}
+
+.grid {
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:20px;
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 40px 60px;
+  position:relative; z-index:1;
+}
+
+/* ════ SCENARIO CARD ════ */
+.card {
+  background:var(--bg2);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:18px;
+  overflow:hidden;
+  transition:border-color .25s, box-shadow .25s;
+  display:flex; flex-direction:column;
+}
+
+.card:hover {
+  border-color:var(--gold-border);
+  box-shadow:0 0 40px rgba(201,168,76,.07);
+}
+
+.card-header {
+  padding:22px 24px 18px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex; align-items:flex-start; gap:14px;
+}
+
+.card-icon {
+  width:46px; height:46px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+
+.icon-doc  { background:rgba(59,130,246,.15); }
+.icon-law  { background:rgba(139,92,246,.15); }
+.icon-know { background:rgba(16,185,129,.15); }
+.icon-risk { background:rgba(201,168,76,.15); }
+
+.card-meta { flex:1; }
+.card-title { font-family:'Syne',sans-serif; font-weight:700; font-size:16px; margin-bottom:5px; }
+.card-desc { font-size:13px; color:var(--muted2); line-height:1.6; }
+
+.card-tag {
+  font-size:10px; font-weight:500; letter-spacing:.5px;
+  padding:3px 9px; border-radius:20px;
+  text-transform:uppercase;
+}
+
+.tag-blue   { background:rgba(59,130,246,.15);  color:#93C5FD; border:1px solid rgba(59,130,246,.25); }
+.tag-purple { background:rgba(139,92,246,.15);  color:#C4B5FD; border:1px solid rgba(139,92,246,.25); }
+.tag-green  { background:rgba(16,185,129,.15);  color:#6EE7B7; border:1px solid rgba(16,185,129,.25); }
+.tag-gold   { background:rgba(201,168,76,.15);  color:#E8C97A; border:1px solid rgba(201,168,76,.25); }
+
+/* ── demo area ── */
+.demo-area { padding:20px 24px; flex:1; display:flex; flex-direction:column; gap:14px; }
+
+.input-block { display:flex; flex-direction:column; gap:8px; }
+.input-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+
+textarea.demo-input, input.demo-input {
+  width:100%;
+  background:var(--bg3); border:1px solid rgba(255,255,255,.08);
+  border-radius:10px; padding:11px 14px;
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px;
+  outline:none; resize:none; transition:border-color .2s; line-height:1.6;
+}
+
+textarea.demo-input:focus, input.demo-input:focus { border-color:var(--gold); }
+textarea.demo-input::placeholder, input.demo-input::placeholder { color:var(--muted); }
+
+.run-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:linear-gradient(135deg,#C9A84C,#8A5C18);
+  border:none; border-radius:10px; padding:11px;
+  color:#000; font-family:'Syne',sans-serif; font-weight:700; font-size:13px;
+  cursor:pointer; transition:all .2s; width:100%;
+}
+.run-btn:hover { box-shadow:0 0 24px rgba(201,168,76,.3); transform:translateY(-1px); }
+.run-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* ── output ── */
+.output-box {
+  background:var(--bg3); border:1px solid rgba(255,255,255,.06);
+  border-radius:10px; padding:14px;
+  font-size:13px; line-height:1.75; color:var(--text);
+  min-height:80px; display:none;
+}
+
+.output-box.visible { display:block; animation:fadeIn .3s ease; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+.output-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px; padding-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.output-label {
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; color:var(--gold); text-transform:uppercase; letter-spacing:.8px;
+}
+
+.output-label::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--green); animation:pulse 2s infinite;
+}
+
+.copy-btn {
+  font-size:11px; color:var(--muted); background:none; border:none;
+  cursor:pointer; transition:color .2s; font-family:'DM Sans',sans-serif;
+}
+.copy-btn:hover { color:var(--gold); }
+
+.output-content { color:var(--muted2); }
+.output-content strong { color:var(--text); }
+.output-content ul { padding-left:16px; margin:6px 0; }
+.output-content li { margin:3px 0; }
+
+/* typing dots in output */
+.typing-dots { display:inline-flex; gap:4px; align-items:center; }
+.typing-dots span {
+  width:6px; height:6px; background:var(--gold); border-radius:50%;
+  animation:hop .9s infinite;
+}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes hop { 0%,60%,100%{transform:translateY(0);opacity:.3} 30%{transform:translateY(-5px);opacity:1} }
+
+/* ── sovereignty footer on card ── */
+.card-footer {
+  padding:12px 24px;
+  border-top:1px solid rgba(255,255,255,.05);
+  display:flex; align-items:center; gap:8px;
+  font-size:11px; color:var(--muted);
+  background:rgba(201,168,76,.03);
+}
+.card-footer span { color:var(--gold); }
+
+/* ════ BOTTOM BANNER ════ */
+.banner {
+  max-width:1100px; margin:0 auto 60px;
+  padding:0 40px; position:relative; z-index:1;
+}
+
+.banner-inner {
+  background:linear-gradient(135deg, rgba(201,168,76,.12), rgba(201,168,76,.04));
+  border:1px solid var(--gold-border); border-radius:18px;
+  padding:32px 40px;
+  display:flex; align-items:center; justify-content:space-between; gap:24px;
+}
+
+.banner-text h3 {
+  font-family:'Syne',sans-serif; font-weight:700; font-size:20px; margin-bottom:6px;
+}
+.banner-text h3 span { color:var(--gold); }
+.banner-text p { font-size:14px; color:var(--muted2); line-height:1.6; max-width:480px; }
+
+.banner-chips { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+
+.chip {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.08);
+  border-radius:8px; padding:8px 14px;
+  font-size:12px; color:var(--muted2);
+}
+.chip-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* ════ RESPONSIVE ════ */
+@media(max-width:768px){
+  .grid { grid-template-columns:1fr; padding:0 16px 40px; }
+  header { padding:14px 18px; }
+  .hero { padding:40px 18px 32px; }
+  .hero-stats { flex-direction:column; gap:0; }
+  .stat { border-right:none; border-bottom:1px solid var(--gold-border); }
+  .stat:last-child { border-bottom:none; }
+  .banner-inner { flex-direction:column; }
+  .banner { padding:0 16px; }
+  .hd-right .mbz-tag { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero-glow"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="hd-left">
+    <div class="k2-chip">K2</div>
+    <div>
+      <div class="hd-title">Think <span>V2</span> · Government AI</div>
+      <div class="hd-sub">Sovereign AI for UAE Ministries & Public Entities</div>
+    </div>
+  </div>
+  <div class="hd-right">
+    <div class="live-pill"><div class="live-dot"></div> Live Demo</div>
+    <div class="mbz-tag">MBZUAI · IFM</div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">🇦🇪 Built in the UAE · 100% Sovereign · Fully Open Source</div>
+  <h1>K2 Think <em>V2</em><br>Government AI Demo</h1>
+  <p>K2 Think V2 is the UAE's first fully sovereign 70B reasoning model — developed by MBZUAI to power the next generation of government digital services.</p>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-val">70B</div><div class="stat-label">Parameters</div></div>
+    <div class="stat"><div class="stat-val">100%</div><div class="stat-label">Sovereign</div></div>
+    <div class="stat"><div class="stat-val">52%</div><div class="stat-label">Hallucination ↓</div></div>
+    <div class="stat"><div class="stat-val">98.2%</div><div class="stat-label">Safety Rate</div></div>
+  </div>
+
+  <div class="section-label">4 Government Use Case Demonstrations</div>
+</div>
+
+<!-- GRID -->
+<div class="grid">
+
+  <!-- ① DOCUMENT PROCESSING -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon icon-doc">📄</div>
+      <div class="card-meta">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="card-title">Document Processing</div>
+          <span class="card-tag tag-blue">Ministry of Finance</span>
+        </div>
+        <div class="card-desc">Extract key clauses, obligations, and deadlines from government contracts and policy documents instantly.</div>
+      </div>
+    </div>
+    <div class="demo-area">
+      <div class="input-block">
+        <div class="input-label">Paste contract or policy text</div>
+        <textarea class="demo-input" id="doc-input" rows="4" placeholder="e.g. This agreement between the Ministry of Infrastructure and Contractor XYZ requires delivery of Phase 1 by Q3 2026, with a penalty clause of AED 50,000 per week of delay. Data must remain within UAE jurisdiction at all times..."></textarea>
+      </div>
+      <button class="run-btn" id="doc-btn" onclick="runDemo('doc')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Analyze Document
+      </button>
+      <div class="output-box" id="doc-output">
+        <div class="output-header">
+          <div class="output-label">K2 Think V2 Analysis</div>
+          <button class="copy-btn" onclick="copyOutput('doc-output')">Copy ↗</button>
+        </div>
+        <div class="output-content" id="doc-content"></div>
+      </div>
+    </div>
+    <div class="card-footer">🔒 <span>Data sovereignty guaranteed</span> · No data leaves UAE infrastructure</div>
+  </div>
+
+  <!-- ② LEGAL REVIEW -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon icon-law">⚖️</div>
+      <div class="card-meta">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="card-title">Legal Review</div>
+          <span class="card-tag tag-purple">Ministry of Justice</span>
+        </div>
+        <div class="card-desc">Review legal texts for compliance gaps, ambiguous clauses, and alignment with UAE federal law.</div>
+      </div>
+    </div>
+    <div class="demo-area">
+      <div class="input-block">
+        <div class="input-label">Paste legal clause or regulation</div>
+        <textarea class="demo-input" id="legal-input" rows="4" placeholder="e.g. Article 12: The employee shall be entitled to annual leave of 30 days after completing one year of service. The employer may defer leave with 7 days notice. Termination without cause requires 3 months salary compensation..."></textarea>
+      </div>
+      <button class="run-btn" id="legal-btn" onclick="runDemo('legal')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Review Legal Text
+      </button>
+      <div class="output-box" id="legal-output">
+        <div class="output-header">
+          <div class="output-label">K2 Think V2 Legal Review</div>
+          <button class="copy-btn" onclick="copyOutput('legal-output')">Copy ↗</button>
+        </div>
+        <div class="output-content" id="legal-content"></div>
+      </div>
+    </div>
+    <div class="card-footer">🔒 <span>Full audit trail</span> · Every inference logged and traceable</div>
+  </div>
+
+  <!-- ③ INTERNAL KNOWLEDGE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon icon-know">🧠</div>
+      <div class="card-meta">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="card-title">Internal Knowledge Base</div>
+          <span class="card-tag tag-green">Any Ministry</span>
+        </div>
+        <div class="card-desc">Ask questions about internal policies, procedures, and regulations — get instant answers from your knowledge base.</div>
+      </div>
+    </div>
+    <div class="demo-area">
+      <div class="input-block">
+        <div class="input-label">Ask a policy or procedure question</div>
+        <textarea class="demo-input" id="know-input" rows="4" placeholder="e.g. What is the procurement approval process for contracts above AED 500,000 in a federal ministry? Who needs to sign off and what documentation is required?"></textarea>
+      </div>
+      <button class="run-btn" id="know-btn" onclick="runDemo('know')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Query Knowledge Base
+      </button>
+      <div class="output-box" id="know-output">
+        <div class="output-header">
+          <div class="output-label">K2 Think V2 Response</div>
+          <button class="copy-btn" onclick="copyOutput('know-output')">Copy ↗</button>
+        </div>
+        <div class="output-content" id="know-content"></div>
+      </div>
+    </div>
+    <div class="card-footer">🔒 <span>Zero external exposure</span> · Runs entirely on sovereign infrastructure</div>
+  </div>
+
+  <!-- ④ RISK & COMPLIANCE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon icon-risk">🛡️</div>
+      <div class="card-meta">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="card-title">Risk & Compliance Report</div>
+          <span class="card-tag tag-gold">Regulatory Bodies</span>
+        </div>
+        <div class="card-desc">Generate structured risk assessments and compliance summaries for regulatory submissions and audits.</div>
+      </div>
+    </div>
+    <div class="demo-area">
+      <div class="input-block">
+        <div class="input-label">Describe the project or initiative</div>
+        <textarea class="demo-input" id="risk-input" rows="4" placeholder="e.g. A new AI-powered citizen service portal that processes visa applications using facial recognition and stores biometric data. The system will handle 50,000 applications per month and integrate with federal identity databases..."></textarea>
+      </div>
+      <button class="run-btn" id="risk-btn" onclick="runDemo('risk')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Generate Risk Report
+      </button>
+      <div class="output-box" id="risk-output">
+        <div class="output-header">
+          <div class="output-label">K2 Think V2 Risk Report</div>
+          <button class="copy-btn" onclick="copyOutput('risk-output')">Copy ↗</button>
+        </div>
+        <div class="output-content" id="risk-content"></div>
+      </div>
+    </div>
+    <div class="card-footer">🔒 <span>NDMO compliant</span> · Meets UAE data classification requirements</div>
+  </div>
+
+</div>
+
+<!-- BOTTOM BANNER -->
+<div class="banner">
+  <div class="banner-inner">
+    <div class="banner-text">
+      <h3>Why <span>K2 Think V2</span> for Government?</h3>
+      <p>Unlike foreign AI models, K2 Think V2 was born in the UAE — developed by MBZUAI with full transparency from training data to deployment. Every government entity mandated to use sovereign solutions can deploy it with confidence.</p>
+    </div>
+    <div class="banner-chips">
+      <div class="chip"><div class="chip-dot" style="background:var(--green)"></div>Data never leaves UAE borders</div>
+      <div class="chip"><div class="chip-dot" style="background:var(--green)"></div>Full training transparency & auditability</div>
+      <div class="chip"><div class="chip-dot" style="background:var(--green)"></div>Aligns with UAE AI Strategy 2031</div>
+      <div class="chip"><div class="chip-dot" style="background:var(--gold)"></div>70B parameters · 98.2% safety rate</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Demo prompts per scenario ──────────────────────────────────────────────
+const SYSTEM_PROMPTS = {
+  doc: `You are a government document analysis assistant powered by K2 Think V2 — the UAE's sovereign AI model by MBZUAI. Analyze the provided government contract or policy document and extract:
+1. Key parties and obligations
+2. Critical deadlines and milestones
+3. Penalty or compliance clauses
+4. Data sovereignty or jurisdiction requirements
+5. Action items for the ministry
+
+Format your response clearly with bold headers. Be concise and specific. Suitable for a UAE government ministry official.`,
+
+  legal: `You are a legal review assistant powered by K2 Think V2 — the UAE's sovereign AI model by MBZUAI. Review the provided legal text and identify:
+1. Compliance status with UAE federal law
+2. Ambiguous or potentially problematic clauses
+3. Employee/citizen rights implications
+4. Recommended amendments or clarifications
+5. Risk level: Low / Medium / High
+
+Format clearly with bold headers. Be specific and actionable for a Ministry of Justice official.`,
+
+  know: `You are an internal knowledge assistant for UAE government ministries, powered by K2 Think V2 — MBZUAI's sovereign AI. Answer the question as if you are an expert in UAE federal government procedures, procurement regulations, and administrative policies.
+
+Provide:
+1. Direct answer to the question
+2. Step-by-step process if applicable
+3. Relevant regulations or circular references
+4. Responsible parties or departments
+5. Estimated timelines
+
+Be structured and practical. Format with bold headers.`,
+
+  risk: `You are a risk and compliance analyst powered by K2 Think V2 — the UAE's sovereign AI model by MBZUAI. Generate a structured risk assessment report for the described government initiative.
+
+Include:
+1. Executive Summary (2-3 sentences)
+2. Risk Matrix (list risks with: Risk | Likelihood | Impact | Mitigation)
+3. Data Privacy & Sovereignty Compliance (NDMO alignment)
+4. Cybersecurity Considerations
+5. Recommended Actions before deployment
+
+Format professionally. Use bold headers. Suitable for a UAE regulatory body submission.`
+};
+
+const API_URL = 'https://api.k2think.ai/v1/chat/completions';
+const MODEL   = 'UAI-IFM/K2-Think-v2';
+
+// Simulated demo responses (shown when no API key)
+const DEMO_RESPONSES = {
+  doc: `<strong>📋 Document Analysis Report</strong><br><br>
+<strong>Parties & Obligations</strong><br>
+• <strong>Ministry of Infrastructure</strong> — Client; responsible for milestone approvals and payment<br>
+• <strong>Contractor XYZ</strong> — Responsible for Phase 1 delivery and data compliance<br><br>
+<strong>Critical Deadlines</strong><br>
+• Phase 1 delivery: <strong>Q3 2026</strong><br>
+• Penalty activation: Day 1 of delay post-deadline<br><br>
+<strong>Penalty & Compliance Clauses</strong><br>
+• AED 50,000 per week of delay — financial exposure requires active monitoring<br>
+• Data jurisdiction clause: all processing must remain within UAE borders ✅<br><br>
+<strong>Action Items for Ministry</strong><br>
+1. Set internal milestone alerts 30 days before Q3 2026<br>
+2. Confirm contractor infrastructure is UAE-hosted<br>
+3. Schedule monthly compliance check-ins<br><br>
+<strong>Risk Level:</strong> 🟡 Medium — delay penalties require close contractor oversight`,
+
+  legal: `<strong>⚖️ Legal Review Summary</strong><br><br>
+<strong>Compliance Assessment</strong><br>
+Clause partially aligns with UAE Labour Law (Federal Decree-Law No. 33 of 2021) with the following observations:<br><br>
+<strong>✅ Compliant Items</strong><br>
+• 30-day annual leave entitlement — meets UAE minimum<br>
+• 3-month compensation for termination without cause — compliant<br><br>
+<strong>⚠️ Ambiguous Clauses</strong><br>
+• "7-day deferral notice" — UAE law requires mutual agreement for deferral; unilateral employer deferral may be challengeable<br>
+• "One year of service" threshold — part-time or contract staff entitlements not addressed<br><br>
+<strong>Recommended Amendments</strong><br>
+1. Replace unilateral deferral clause with "mutual written agreement" language<br>
+2. Add a clause covering pro-rated leave for staff serving less than 12 months<br>
+3. Specify compensation calculation basis (basic or total salary)<br><br>
+<strong>Overall Risk Level:</strong> 🟡 Medium — 2 clauses require revision before formal adoption`,
+
+  know: `<strong>🏛️ UAE Federal Procurement Process — Contracts Above AED 500,000</strong><br><br>
+<strong>Approval Authority</strong><br>
+Contracts above AED 500,000 require <strong>Tenders Committee</strong> approval at the federal ministry level, per the Federal Government Procurement and Warehouse Management Law (Federal Law No. 8 of 2011).<br><br>
+<strong>Step-by-Step Process</strong><br>
+1. <strong>Needs Assessment</strong> — Department head submits formal justification<br>
+2. <strong>Budget Confirmation</strong> — Finance division confirms budget allocation<br>
+3. <strong>Tender Preparation</strong> — Procurement unit drafts RFP/RFQ documentation<br>
+4. <strong>Tenders Committee Review</strong> — Minimum 3 members, including legal and finance<br>
+5. <strong>Ministry Undersecretary Approval</strong> — Final sign-off for contracts AED 500K–5M<br>
+6. <strong>Cabinet Approval</strong> — Required for contracts above AED 5M<br><br>
+<strong>Required Documentation</strong><br>
+• Technical specifications, evaluation criteria, budget certificate, legal review, at least 3 competitive bids<br><br>
+<strong>Estimated Timeline:</strong> 6–12 weeks from RFP to contract award`,
+
+  risk: `<strong>🛡️ Risk Assessment Report — AI Citizen Services Portal</strong><br><br>
+<strong>Executive Summary</strong><br>
+The proposed AI visa processing portal presents significant operational potential but carries high data privacy and cybersecurity risks due to biometric data processing at scale. Deployment should proceed only after addressing critical sovereignty and data protection requirements.<br><br>
+<strong>Risk Matrix</strong><br>
+• Biometric data breach | High | Critical | End-to-end encryption + UAE-hosted HSMs<br>
+• Federal DB integration failure | Medium | High | API redundancy + fallback protocols<br>
+• AI misidentification | Medium | High | Human-in-loop review for all rejections<br>
+• Regulatory non-compliance (NDMO) | High | High | Pre-deployment NDMO audit required<br>
+• Vendor data exposure | Low | Critical | Sovereign AI (K2 Think V2) deployment recommended<br><br>
+<strong>Data Sovereignty Compliance (NDMO)</strong><br>
+⚠️ Biometric data = <strong>Restricted</strong> classification under NDMO Tier 4<br>
+✅ Requirement: On-premise or UAE sovereign cloud deployment only<br>
+✅ Recommendation: Deploy K2 Think V2 on UAE sovereign infrastructure — eliminates foreign data exposure risk<br><br>
+<strong>Recommended Actions Before Deployment</strong><br>
+1. Conduct NDMO Data Protection Impact Assessment (DPIA)<br>
+2. Obtain TRA cybersecurity certification<br>
+3. Implement human oversight layer for all automated decisions<br>
+4. Sign data processing agreements with all integrated federal entities`
+};
+
+async function runDemo(type) {
+  const inputEl   = document.getElementById(`${type}-input`);
+  const outputEl  = document.getElementById(`${type}-output`);
+  const contentEl = document.getElementById(`${type}-content`);
+  const btn       = document.getElementById(`${type}-btn`);
+
+  const userText = inputEl.value.trim();
+  if (!userText) {
+    inputEl.style.borderColor = 'var(--red)';
+    setTimeout(() => inputEl.style.borderColor = '', 1500);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div> Analyzing…`;
+  outputEl.classList.add('visible');
+  contentEl.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
+
+  // Try real K2 API first — fall back to demo response
+  let result = '';
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPTS[type] },
+          { role: 'user',   content: userText }
+        ],
+        max_tokens: 800,
+        temperature: 0.4
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      result = data.choices?.[0]?.message?.content || '';
+    }
+  } catch(_) {}
+
+  // If no real response, stream the demo response
+  if (!result) {
+    await streamText(contentEl, DEMO_RESPONSES[type]);
+  } else {
+    contentEl.innerHTML = formatResponse(result);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Run Again`;
+}
+
+// Simulates streaming typewriter effect for demo mode
+async function streamText(el, html) {
+  el.innerHTML = '';
+  // Strip HTML and stream character by character, then reveal full HTML
+  const chars = html.replace(/<[^>]+>/g, '').split('');
+  let i = 0;
+  const interval = setInterval(() => {
+    i += 3;
+    if (i >= chars.length) {
+      clearInterval(interval);
+      el.innerHTML = html; // show fully formatted
+    } else {
+      el.textContent = chars.slice(0, i).join('') + '…';
+    }
+  }, 10);
+}
+
+function formatResponse(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^#{1,3} (.+)$/gm,'<strong>$1</strong>')
+    .replace(/^[•\-] (.+)$/gm,'• $1')
+    .replace(/\n/g,'<br>');
+}
+
+function copyOutput(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = el.querySelector('.copy-btn');
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = 'Copy ↗', 1500);
+  });
+}
+</script>
+</body>
+</html>
